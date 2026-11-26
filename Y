@@ -1,0 +1,22 @@
+name: 4H Crypto and Gold Scanner
+
+on:
+  schedule:
+    # اجرای خودکار هر ۱۵ دقیقه یک‌بار در طول شبانه‌روز
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # دکمه اجرای دستی
+
+jobs:
+  scan-market:
+    runs-on: ubuntu-latest
+    steps:
+      - name: دریافت کدها
+        uses: actions/checkout@v4
+
+      - name: نصب پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: اسکن بازار و ارسال به تلگرام
+        run: python -c "import trading_signal_bot; trading_signal_bot.run_scan()"
