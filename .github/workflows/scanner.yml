@@ -1,9 +1,9 @@
-name: 4H Market Scanner
+name: 4H Live Market Scanner
 
 on:
   schedule:
-    # اسکن خودکار بازار هر ۱۵ دقیقه یک‌بار در ۲۴ ساعت شبانه‌روز
-    - cron: '*/15 * * * *'
+    # هر ۳۰ دقیقه یک سرور زنده روشن می‌شود
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -18,5 +18,18 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Run Gann & Ichimoku Scan
-        run: python -c "import trading_signal_bot; trading_signal_bot.run_scan()"
+      - name: Run Live Scanner Loop
+        run: |
+          python -c "
+          import trading_signal_bot as bot
+          import time
+
+          print('🚀 شروع مانیتورینگ زنده بازار (بررسی مداوم هر ۶۰ ثانیه)...')
+          start = time.time()
+          while time.time() - start < 1800:
+              try:
+                  bot.run_scan()
+              except Exception as e:
+                  print('Error:', e)
+              time.sleep(60)
+          "
