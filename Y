@@ -1,22 +1,36 @@
-name: 4H Crypto and Gold Scanner
+name: 4H Live Market Scanner
 
 on:
   schedule:
-    # اجرای خودکار هر ۱۵ دقیقه یک‌بار در طول شبانه‌روز
-    - cron: '*/15 * * * *'
-  workflow_dispatch: # دکمه اجرای دستی
+    # هر نیم ساعت یک سرور تازه نفس روشن می‌شود
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 jobs:
-  scan-market:
+  scan:
     runs-on: ubuntu-latest
     steps:
-      - name: دریافت کدها
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: نصب پایتون
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-            - name: Run Gann & Ichimoku Scan
-        run: python trading_signal_bot.py
+      - name: Run Gann & Ichimoku Live Loop
+        run: |
+          python -c "
+          import trading_signal_bot as bot
+          import time
+
+          print('🚀 شروع مانیتورینگ زنده بازار (هر ۶۰ ثانیه)...')
+          # این سرور به مدت ۵۰ دقیقه بدون توقف روشن می‌ماند
+          start_time = time.time()
+          while time.time() - start_time < 3000:
+              try:
+                  bot.run_scan()
+              except Exception as e:
+                  print('Error:', e)
+              time.sleep(60)
+          "
